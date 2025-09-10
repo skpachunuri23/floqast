@@ -29,9 +29,120 @@ python verify_iceberg_results.py
 
 ## Prerequisites
 
-- Docker Desktop with 8GB+ memory
-- Java 17 (install: `brew install --cask temurin@17`)
-- Python 3.9+ 
+### 1. Install Java 17 (Required for PySpark)
+
+**For Mac:**
+```bash
+# Install Java 17 using Homebrew
+brew install --cask temurin@17
+
+# Set JAVA_HOME environment variable
+echo 'export JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home' >> ~/.zshrc
+echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.zshrc
+
+# Reload shell configuration
+source ~/.zshrc
+
+# Verify installation
+java -version
+# Should show: openjdk version "17.x.x"
+```
+
+**For Windows:**
+1. Download Java 17 from: https://adoptium.net/temurin/releases/
+2. Install the `.msi` file
+3. Add to PATH in System Environment Variables
+4. Set JAVA_HOME to installation directory
+
+**For Linux (Ubuntu/Debian):**
+```bash
+# Install Java 17
+sudo apt update
+sudo apt install openjdk-17-jdk
+
+# Set JAVA_HOME
+echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' >> ~/.bashrc
+source ~/.bashrc
+
+# Verify installation
+java -version
+```
+
+### 2. Other Prerequisites
+- Docker Desktop with 8GB+ memory allocation
+- Python 3.9+ with pip
+- Git (for cloning repository)
+
+## Installation Guide
+
+### Step 1: Clone Repository
+```bash
+# Clone the repository
+git clone https://github.com/skpachunuri23/floqast.git
+cd floqast
+
+# Verify you're in the right directory
+pwd
+# Should show: /path/to/floqast
+```
+
+### Step 2: Set Up Python Environment
+```bash
+# Create virtual environment
+python3 -m venv venv
+
+# Activate virtual environment
+source venv/bin/activate  # Mac/Linux
+# For Windows: venv\Scripts\activate
+
+# Verify activation (should show (venv) in prompt)
+which python
+```
+
+### Step 3: Install Python Dependencies
+```bash
+# Install all required packages
+pip install -r requirements.txt
+
+# Verify key packages installed
+pip list | grep -E "(pyspark|pymongo|boto3)"
+```
+
+### Step 4: Start Docker Infrastructure
+```bash
+# Start MongoDB and MinIO services
+docker-compose up -d
+
+# Wait for services to start
+sleep 30
+
+# Verify services are running
+docker-compose ps
+# Should show: accounting-mongodb and accounting-minio running
+```
+
+### Step 5: Run the ETL Pipeline
+```bash
+# Run the full PySpark Iceberg pipeline
+python run_spark_pipeline.py
+
+# Expected output should show:
+# ✓ Extracted X records from each collection
+# ✓ Transformed with flattening and partitioning
+# ✓ Created Iceberg tables with optimization
+# ✓ Performed MERGE INTO operations for CDC
+```
+
+### Step 6: Verify Results
+```bash
+# Run verification script
+python verify_iceberg_results.py
+
+# Check MinIO web interface
+open http://localhost:9001
+# Login: minioadmin/minioadmin
+# Browse: accounting-data-lake bucket
+``` 
 
 ## What It Does
 
